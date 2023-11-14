@@ -78,9 +78,7 @@ def create_table(name, path):
     
 
 if __name__ == '__main__':
-    PoolGenerator.init_pool()
-    
+    # PoolGenerator.init_pool()
     app.run(debug=True)
-
-    PoolGenerator.pool.close()
-    PoolGenerator.pool.join()
+    # PoolGenerator.pool.close()
+    # PoolGenerator.pool.join()

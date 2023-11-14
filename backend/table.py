@@ -118,19 +118,19 @@ class HierarchicalTable:
         # res_list = pool.map(self.process_block, args_list)
         # # end here
         
-        # # no multi-processing
-        # # start here
-        # res_list = []
-        # for args in args_list:
-        #     res = self.process_block(args)
-        #     res_list.append(res)
-        # # end here
-
-        # new multi-processing
+        # no multi-processing
         # start here
-        pool = PoolGenerator.pool
-        res_list = pool.map(self.process_block, args_list)
+        res_list = []
+        for args in args_list:
+            res = self.process_block(args)
+            res_list.append(res)
         # end here
+
+        # # new multi-processing
+        # # start here
+        # pool = PoolGenerator.pool
+        # res_list = pool.map(self.process_block, args_list)
+        # # end here
 
         for node, args in zip(res_list, args_list):
             if node != None:
