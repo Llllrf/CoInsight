@@ -1,0 +1,16 @@
+.DS_Store
+**/.DS_Store
+.DS_Store?
+
+node_modules/
+**/node_modules
+node_modules?
+
+.vscode
+**/.vscode
+.vscode?
+
+*.log
+*.temp
+
+**/__pycache__
