@@ -26,7 +26,10 @@ def upload_table():
 
     if file:
         filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        folder = app.config['UPLOAD_FOLDER']
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+        filepath = os.path.join(folder, filename)
         file.save(filepath)
 
         # process the uploading table

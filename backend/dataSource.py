@@ -1,4 +1,5 @@
 import openpyxl
+import os
 
 class DataSource:
     def __init__(self, source_name, source_path, func_dependency=None):
@@ -12,11 +13,17 @@ class DataSource:
         # current_date = datetime.date.today().strftime("%m%d")
         # path = 'data/' + self.source_name + '/'
         # path = path + 'result_' + current_date + '_S' + str(state) + '.json'
-        path = 'results/' + self.source_name + '_S' + str(state) + '.json'
+        folder = 'results'
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+        path = folder + '/' + self.source_name + '_S' + str(state) + '.json'
         return path
     
     def get_state_data_path(self, state):
-        path = "data/" + self.source_name + '_S' + str(state) + '.xlsx'
+        folder = 'data'
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+        path = folder + "/" + self.source_name + '_S' + str(state) + '.xlsx'
         return path
 
     def get_header_range(self):
