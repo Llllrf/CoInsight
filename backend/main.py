@@ -1,4 +1,5 @@
 import os
+import PoolGenerator
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
 from werkzeug.utils import secure_filename
@@ -77,6 +78,9 @@ def create_table(name, path):
     
 
 if __name__ == '__main__':
+    PoolGenerator.init_pool()
+    
     app.run(debug=True)
 
-
+    PoolGenerator.pool.close()
+    PoolGenerator.pool.join()

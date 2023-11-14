@@ -1,7 +1,7 @@
 import pandas as pd
 import json
 import time, os
-import multiprocessing as mp
+import PoolGenerator
 from itertools import groupby
 from insight import get_insight
 from visualization import get_visualization
@@ -112,9 +112,26 @@ class HierarchicalTable:
                     args_list.append(args)
                     
         print('processing blocks...')
-        pool = mp.Pool(mp.cpu_count())
-        # multi-processing
+        # # multi-processing
+        # # start here
+        # pool = mp.Pool(mp.cpu_count())
+        # res_list = pool.map(self.process_block, args_list)
+        # # end here
+        
+        # # no multi-processing
+        # # start here
+        # res_list = []
+        # for args in args_list:
+        #     res = self.process_block(args)
+        #     res_list.append(res)
+        # # end here
+
+        # new multi-processing
+        # start here
+        pool = PoolGenerator.pool
         res_list = pool.map(self.process_block, args_list)
+        # end here
+
         for node, args in zip(res_list, args_list):
             if node != None:
                 idx, col, _, state, _ = args
@@ -124,8 +141,8 @@ class HierarchicalTable:
                 global_state = self.get_global_state_num(state)
                 # save the block with insight, used for link generation
                 self.block_with_insight.append((idx, col, global_state))   
-        pool.close()
-        pool.join()
+        # pool.close()
+        # pool.join()
 
         # save the state-data and state-keys
         self.all_state.extend(self.curr_focus_all_state[1:])  # the first state must have been recorded
