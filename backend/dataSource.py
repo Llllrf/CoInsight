@@ -2,10 +2,11 @@ import openpyxl
 import os
 
 class DataSource:
-    def __init__(self, source_name, source_path, func_dependency=None):
+    def __init__(self, source_name, source_path, id, func_dependency=None):
         self.source_name = source_name
         self.source_path = source_path
         self.func_depends = func_dependency 
+        self.request_uuid = id
         self.result_path = self.get_result_path()
         self.get_header_range()
 
@@ -13,7 +14,7 @@ class DataSource:
         # current_date = datetime.date.today().strftime("%m%d")
         # path = 'data/' + self.source_name + '/'
         # path = path + 'result_' + current_date + '_S' + str(state) + '.json'
-        folder = 'results'
+        folder = 'results/' + self.request_uuid
         if not os.path.exists(folder):
             os.makedirs(folder)
         path = folder + '/' + self.source_name + '_S' + str(state) + '.json'
