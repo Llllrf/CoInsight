@@ -1,9 +1,11 @@
+import { fetchPOST, fetchGET } from "@/services/fetch";
+
 export default {
   namespaced: true,
   state() {
     return {
-      // baseUrl: "http://127.0.0.1:5000", 
-      baseUrl: "http://10.1.114.103:5001",  // run backend in an intranet server
+      // baseUrl: "http://127.0.0.1:5000",
+      baseUrl: "http://10.1.114.103:5001", // run backend in an intranet server
 
       // load state
       loading: false,
@@ -91,68 +93,32 @@ export default {
       const formData = new FormData();
       formData.append("file", payload);
       const url = context.getters.baseUrl + "/upload";
-      context.commit("setLoading", true);
-      fetch(url, {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("RESPONSE ERROR");
-          }
-          return response.json();
-        })
-        .then((data) => {
-          context.commit("setError", {
-            state: false,
-            message: "",
-          });
-          context.commit("setLoading", false);
-          context.dispatch("handleData", data);
-        })
-        .catch((error) => {
-          context.commit("setError", {
-            state: true,
-            message: error.message,
-          });
-          context.commit("setLoading", false);
-          console.error("error:", error.message);
-        });
+
+      fetchPOST(url, { data: formData, type: "form" }, context);
     },
 
     // load force and table data
     loadData(context, payload) {
       // const file = "test_data/result_0826_S1.json";
       // const url = `data/${file}`;
+
+      const mode = payload.mode;
+      let route = null;
+      switch (mode) {
+        case "back":
+          route = "back";
+          break;
+        case "forward":
+          route = "state";
+      }
       const targetState = payload.state;
-      context.commit("setLoading", true);
-      const url = context.getters.baseUrl + "/state/" + targetState;
-      fetch(url)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("NETWORK ERROR");
-          }
-          return response.json();
-        })
-        .then((data) => {
-          context.commit("setLoading", false);
-          context.commit("setError", {
-            state: false,
-            message: "",
-          });
-          context.dispatch("handleData", data);
-        })
-        .catch((error) => {
-          context.commit("setError", {
-            state: true,
-            message: error.message,
-          });
-          context.commit("setLoading", false);
-          console.error("error:", error.message);
-        });
+      const url = context.getters.baseUrl + `/${route}/` + targetState;
+
+      fetchGET(url, null, context);
     },
 
     handleData(context, payload) {
+      console.log("sourceData:", payload);
       const data = payload;
 
       // get table data

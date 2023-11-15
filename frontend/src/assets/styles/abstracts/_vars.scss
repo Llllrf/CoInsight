@@ -1,0 +1,49 @@
+/* color-------------------------------------------------------------------------- */
+// main
+$primary-color: #a9dfd8;
+$primary-color-dark: #6f929b;
+
+$secondary-color: #64748b;
+$secondary-color-dark: #334155;
+$third-color: #cf9dca;
+$third-color-dark: #ad79a6;
+
+// bg
+$background-color-gray: #e8e8e8;
+$background-color: #f4f4f4;
+$background-color-white: #fff;
+
+// text
+$text-color: #555;
+$text-secondary-color: #888;
+$heading-color: #111;
+$link-color: $primary-color;
+$muted-text-color: #ccc;
+
+$line-height-regular: 1;
+
+// border
+$border-color: #e1e1e1;
+$border-color-gray: #aaa;
+
+/* font -------------------------------------------------------------------------- */
+$font-primary: "Lato", Arial, sans-serif;
+$font-weight-regular: 400;
+$font-weight-bold: 800;
+
+/* z-index -------------------------------------------------------------------------- */
+$z-bottom: 1;
+$z-middle: 2;
+$z-top: 3;
+$z-absolute-top: 99;
+
+/* other colors -------------------------------------------------------------------------- */
+$red: #f4acb7;
+
+/* sidebar -------------------------------------------------------------------------- */
+$sidebar-width: 15rem;
+$icon-size-large: 3.5rem;
+$icon-size-regular: 2.6rem;
+$icon-size-small: 2.4rem;
+$icon-color-gray: #ccccccad;
+$avatar-size: $icon-size-regular;
