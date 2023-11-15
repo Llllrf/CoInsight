@@ -100,10 +100,9 @@ export default {
   },
 
   computed: {
-    rootFontSize (){
-
+    rootFontSize() {
       return parseFloat(getComputedStyle(document.documentElement).fontSize);
-    } ,
+    },
     totalData() {
       return this.$store.getters["force/totalData"];
     },
@@ -223,7 +222,6 @@ export default {
       const that = this;
 
       if (!this.barchartConfig) {
-     
         const container = d3.select("#barchart-box");
         if (!this.barchartWidth) {
           this.barchartWidth = parseInt(container.style("width"), 10);
@@ -232,9 +230,9 @@ export default {
         const width = this.barchartWidth;
         const height = this.barchartHeight;
         const marginTop = 0;
-        const marginRight = height/16;
-        const marginBottom = height/9;
-        const marginLeft = height/16;
+        const marginRight = height / 16;
+        const marginBottom = height / 9;
+        const marginLeft = height / 16;
         container.select("svg").remove();
         const colorScale = d3.scaleOrdinal(this.linkType, [
           "#9AA3CC",
@@ -253,7 +251,7 @@ export default {
         const xAxis = svg
           .append("g")
           .attr("class", "x-axis")
-          .style('font-size','0.8rem')
+          .style("font-size", "0.8rem")
           .attr("transform", `translate(0,${height - marginBottom})`);
 
         this.barchartConfig = {};
@@ -329,7 +327,12 @@ export default {
         .select(".x-axis")
         .transition()
         .duration(300)
-        .call(d3.axisBottom(x).ticks(8).tickSize(config.marginBottom/4))
+        .call(
+          d3
+            .axisBottom(x)
+            .ticks(8)
+            .tickSize(config.marginBottom / 4)
+        )
         .select(".domain")
         .attr("stroke-opacity", 0);
 
@@ -350,7 +353,6 @@ export default {
     },
     drawHistogram(newVal) {
       const that = this;
-   
 
       if (!this.histogramConfig) {
         // initialization
@@ -378,30 +380,24 @@ export default {
 
         // 获取每个子图的高
         const subHeight = Math.floor(height / types.length);
-        
-       
+
         // slider的高
-        const sliderHeight =  subHeight / 5.5;
-        const sliderRectHeight = subHeight/7.4;
+        const sliderHeight = subHeight / 5.5;
+        const sliderRectHeight = subHeight / 7.4;
         // 设置每个子图的margin
         const marginTop = subHeight / 5.5;
         const marginRight = subHeight / 11;
-        const marginBottom =subHeight/7.4 + sliderHeight;
+        const marginBottom = subHeight / 7.4 + sliderHeight;
         const marginLeft = width * 0.3;
         // slider的宽
         const sliderWidth = width - marginLeft - marginRight;
         //创建tooltip
-
         const tooltip = container.select("div.tooltip");
         // 选择svg画布
         const svg = container
           .select("svg")
           .style("user-select", "none")
           .attr("viewBox", [0, 0, width, height]);
-
-        // 创建分箱器
-        const bin = d3.bin().value((d) => d.score);
-        //    .thresholds(d3.thresholdFreedmanDiaconis);
 
         // 创建左半轴的bar
         const typeColor = d3
@@ -423,6 +419,27 @@ export default {
           .selectAll(".tick text")
           .remove();
 
+        this.histogramConfig.container = container;
+        this.histogramConfig.width = width;
+        this.histogramConfig.marginLeft = marginLeft;
+        this.histogramConfig.marginRight = marginRight;
+        this.histogramConfig.marginTop = marginTop;
+        this.histogramConfig.marginBottom = marginBottom;
+        this.histogramConfig.marginLeftType = marginLeftType;
+        this.histogramConfig.marginRightType = marginRightType;
+        this.histogramConfig.subHeight = subHeight;
+        this.histogramConfig.sliderHeight = sliderHeight;
+        this.histogramConfig.sliderWidth = sliderWidth;
+        this.histogramConfig.sliderRectHeight = sliderRectHeight;
+        this.histogramConfig.tooltip = tooltip;
+        this.histogramConfig.types = types;
+        this.histogramConfig.yTypeFunc = yType;
+        this.histogramConfig.typeColor = typeColor;
+        this.histogramConfigs.set(this.focusState, this.histogramConfig);
+
+        // 创建分箱器
+        const bin = d3.bin().value((d) => d.score);
+        //    .thresholds(d3.thresholdFreedmanDiaconis);
         // 创建右半轴的histogram
         types.forEach((type, index) => {
           const value = newVal.get(type);
@@ -436,94 +453,17 @@ export default {
           ];
           this.histogramConfig.xTicks[type] = all_ticks;
 
-          // 创建当前种类子图的g
-          const g = svg
-            .append("g")
-            .attr("class", `${type}-box sub-graph`)
-            .attr("transform", `translate(0,${index * subHeight})`);
-
           const x = d3
             .scaleLinear()
             .domain([all_ticks[0], all_ticks[all_ticks.length - 1]])
             .range([marginLeft, width - marginRight]);
 
           this.histogramConfig.xFuncs[type] = x;
+
           const y = d3
             .scaleLinear()
             .domain([0, d3.max(bins, (d) => d.length)])
             .range([subHeight - marginBottom, marginTop]);
-
-          // 添加类型名和选择框
-          const subTitle = g.append("g").attr("class", "sub-title");
-          subTitle
-            .append("text")
-            .attr("class", "type-text")
-            .text(type)
-            .attr("x", marginLeft)
-            .attr("y", 0 + 1.2*that.rootFontSize)
-            .attr("text-anchor", "start")
-            .attr("fill", "#555")
-            .attr("font-size", "1.2rem");
-          subTitle
-            .append("use")
-            .datum({
-              selected: true,
-              type: type,
-            })
-            .attr("href", "#defs-check-insight")
-            .attr("transform", `translate(${width - marginRight - 15},0)`)
-            .attr("width", '1.5rem')
-            .attr("height", '1.5rem')
-            .attr("cursor", "pointer")
-            .classed("histogram-type-selected", true)
-            .on("mouseover", function () {
-              d3.select(this).classed("histogram-type-hovered", true);
-            })
-            .on("mouseout", function (event, d) {
-              if (!d.selected)
-                d3.select(this)
-                  .classed("histogram-type-unselected", true)
-                  .classed("histogram-type-hovered", false);
-              else {
-                d3.select(this)
-                  .classed("histogram-type-unselected", false)
-                  .classed("histogram-type-hovered", false);
-              }
-            })
-            .on("click", function (event, d) {
-              d.selected = !d.selected;
-              if (!d.selected)
-                d3.select(this).classed("histogram-type-unselected", true);
-              else {
-                d3.select(this).classed("histogram-type-unselected", false);
-              }
-              that.changeTypeSelected({
-                type: d.type,
-                selected: d.selected,
-              });
-            });
-
-          // slider矩形框
-          const sliderRect = g
-            .append("rect")
-            .attr("x", marginLeft)
-            .attr("y", subHeight - sliderHeight)
-            .attr("width", sliderWidth)
-            .attr("height", sliderRectHeight)
-            .attr("fill", "#D5DAEC")
-            .attr("stroke", "#fff");
-
-          // 添加slider的背景线
-          all_ticks.forEach((d, index) => {
-            if (index !== 0)
-              g.append("line")
-                .attr("class", "brush-line")
-                .attr("x1", x(d))
-                .attr("x2", x(d))
-                .attr("y1", subHeight - sliderHeight)
-                .attr("y2", subHeight - sliderHeight + sliderRectHeight)
-                .attr("stroke", "#fff");
-          });
 
           // 添加brush
           const brush = d3
@@ -538,13 +478,10 @@ export default {
             .on("end", function (event) {
               brushended(this, event, type);
             });
-          g.append("g").attr("class", "brush").call(brush);
-
           this.histogramConfig.brushes.set(type, {
             func: brush,
             position: null,
           });
-
           function brushended(brushContainer, event, type) {
             // 获取选择的两端的svg坐标
             const selection = event.selection;
@@ -585,76 +522,16 @@ export default {
               selection: x1 > x0 ? [x0, x1] : "all",
             });
           }
-          // 直方图矩形框
-          g.append("g")
-            .attr("fill", "#858eb5")
-            .attr("class", "rect-group")
-            .style("cursor", "pointer")
-            .selectAll("rect")
-            .data(bins, (d, index) => index)
-            .join("rect")
-            .on("mouseover", mouseover)
-            .on("mousemove", mousemove)
-            .on("mouseleave", mouseleave)
-            .attr("x", (d) => {
-              if (d.x0 === d.x1) {
-                return marginLeft;
-              } else {
-                return x(d.x0) + 1;
-              }
-            })
-            .attr("width", (d) => {
-              const rectWidth = x(d.x1) - x(d.x0);
-              if (rectWidth === 0) {
-                return width - marginLeft - marginRight;
-              } else {
-                return rectWidth - 1;
-              }
-            })
-            .attr("y", (d) => y(d.length))
-            .attr("height", (d) => y(0) - y(d.length));
-          // 找到最大长度的 bin
-          let maxBin = bins.reduce((acc, curr) =>
-            curr.length > acc.length ? curr : acc
+          // 画子图
+          this.drawSubHistogram(
+            type,
+            index,
+            bins,
+            y,
+            this.histogramConfig,
+            svg
           );
-
-          // 在最高矩形上添加文本
-          g.append("g")
-            .attr("class", "max-value")
-            .selectChildren("text")
-            .data([maxBin])
-            .join("text")
-            .attr("x", (d) => x(d.x0) + (x(d.x1) - x(d.x0)) / 2)
-            .attr("y", (d) => (y(d.length) + that.rootFontSize))
-            .attr("text-anchor", "middle")
-            .attr("fill", "#fff")
-            .attr("font-size", "1rem")
-            .text((d) => d.length);
-          // x轴
-          g.append("g")
-
-            .attr("class", "x-axis")
-            .attr("transform", `translate(0,${subHeight - marginBottom})`)
-            .call(d3.axisBottom(x).tickValues(all_ticks).tickSizeInner(3))
-            .call((g) => g.attr("font-size", "0.8rem"));
         });
-
-        this.histogramConfig.container = container;
-        this.histogramConfig.width = width;
-        this.histogramConfig.marginLeft = marginLeft;
-        this.histogramConfig.marginRight = marginRight;
-        this.histogramConfig.marginTop = marginTop;
-        this.histogramConfig.marginBottom = marginBottom;
-        this.histogramConfig.marginLeftType = marginLeftType;
-        this.histogramConfig.marginRightType = marginRightType;
-        this.histogramConfig.subHeight = subHeight;
-        this.histogramConfig.sliderHeight = sliderHeight;
-        this.histogramConfig.sliderRectHeight = sliderRectHeight;
-        this.histogramConfig.tooltip = tooltip;
-        this.histogramConfig.types = types;
-        this.histogramConfig.yTypeFunc = yType;
-        this.histogramConfig.typeColor = typeColor;
-        this.histogramConfigs.set(this.focusState, this.histogramConfig);
       } else {
         const types = this.histogramConfig.types;
         const xTicks = this.histogramConfig.xTicks;
@@ -667,66 +544,9 @@ export default {
           });
         types.forEach((type, index) => {
           const value = newVal.get(type);
-          // get old x
           const x = this.histogramConfig.xFuncs[type];
-
-          const subGraph = this.histogramConfig.container
-            .select("svg")
-            .select(`.${type}-box`);
-          if (this.refreshHistogram) {
-            const all_ticks = xTicks[type];
-            const selected = this.scoreSelectionMap.get(type).selected;
-            // 刷新小x轴
-            const xAxis = subGraph.select("g.x-axis");
-            xAxis.selectAll("*").remove();
-            xAxis
-              .call(d3.axisBottom(x).tickValues(all_ticks).tickSizeInner(3))
-              .call((g) => g.attr("font-size", "0.8rem"));
-
-            subGraph.select("g.sub-title").select("text").text(type);
-            subGraph
-              .select("g.sub-title")
-              .select("use")
-              .datum({
-                selected: selected,
-                type: type,
-              })
-              .classed("histogram-type-unselected", (d) => {
-                return !d.selected;
-              });
-
-            // brush 刷选框
-            subGraph.selectChildren(".brush-line").remove();
-            all_ticks.forEach((d, index) => {
-              if (index !== 0)
-                subGraph
-                  .append("line")
-                  .attr("class", "brush-line")
-                  .attr("x1", x(d))
-                  .attr("x2", x(d))
-                  .attr(
-                    "y1",
-                    this.histogramConfig.subHeight -
-                      this.histogramConfig.sliderHeight
-                  )
-                  .attr(
-                    "y2",
-                    this.histogramConfig.subHeight -
-                      this.histogramConfig.sliderHeight +
-                      this.histogramConfig.sliderRectHeight
-                  )
-                  .attr("stroke", "#fff");
-            });
-            const brushContainer = subGraph.select("g.brush");
-            const brush = this.histogramConfig.brushes.get(type).func;
-
-            brushContainer.selectAll("*").remove();
-            brushContainer.call(brush);
-            brushContainer.call(
-              brush.move,
-              this.histogramConfig.brushes.get(type).position
-            );
-          }
+          const svg = this.histogramConfig.container.select("svg");
+          const subGraph = svg.select(`.${type}-box`);
 
           // get new bins
           let bins = [];
@@ -751,6 +571,94 @@ export default {
                 this.histogramConfig.marginBottom,
               this.histogramConfig.marginTop,
             ]);
+
+          // 原来位置有图，调整大小/位置即可
+          if (this.refreshHistogram) {
+            if (subGraph.empty()) {
+              this.drawSubHistogram(
+                type,
+                index,
+                bins,
+                y,
+                this.histogramConfig,
+                svg
+              );
+            } else {
+              subGraph.attr(
+                "transform",
+                `translate(0,${index * this.histogramConfig.subHeight})`
+              );
+
+              const all_ticks = xTicks[type];
+              const selected = this.scoreSelectionMap.get(type).selected;
+              // 刷新小x轴
+              const xAxis = subGraph.select("g.x-axis");
+              xAxis.selectAll("*").remove();
+              xAxis
+                .attr(
+                  "transform",
+                  `translate(0,${
+                    this.histogramConfig.subHeight -
+                    this.histogramConfig.marginBottom
+                  })`
+                )
+                .call(d3.axisBottom(x).tickValues(all_ticks).tickSizeInner(3))
+                .call((g) => g.attr("font-size", "0.8rem"));
+
+              subGraph.select("g.sub-title").select("text").text(type);
+              subGraph
+                .select("g.sub-title")
+                .select("use")
+                .datum({
+                  selected: selected,
+                  type: type,
+                })
+                .classed("histogram-type-unselected", (d) => {
+                  return !d.selected;
+                });
+              // 矩形框重定位 / 重造型
+              subGraph
+                .select("rect.slider-rect")
+                .attr("height", this.histogramConfig.sliderRectHeight)
+                .attr(
+                  "y",
+                  this.histogramConfig.subHeight -
+                    this.histogramConfig.sliderHeight
+                );
+
+              // brush 刷选框
+              subGraph.selectChildren(".brush-line").remove();
+              all_ticks.forEach((d, index) => {
+                if (index !== 0)
+                  subGraph
+                    .append("line")
+                    .attr("class", "brush-line")
+                    .attr("x1", x(d))
+                    .attr("x2", x(d))
+                    .attr(
+                      "y1",
+                      this.histogramConfig.subHeight -
+                        this.histogramConfig.sliderHeight
+                    )
+                    .attr(
+                      "y2",
+                      this.histogramConfig.subHeight -
+                        this.histogramConfig.sliderHeight +
+                        this.histogramConfig.sliderRectHeight
+                    )
+                    .attr("stroke", "#fff");
+              });
+              const brushContainer = subGraph.select("g.brush");
+              const brush = this.histogramConfig.brushes.get(type).func;
+
+              brushContainer.selectAll("*").remove();
+              brushContainer.call(brush);
+              brushContainer.call(
+                brush.move,
+                this.histogramConfig.brushes.get(type).position
+              );
+            }
+          }
 
           subGraph
             .select(".max-value")
@@ -950,6 +858,181 @@ export default {
           .transition()
           .duration(250)
           .style("opacity", 0);
+        d3.select(this).classed("barchart-hover-highlight", false);
+      }
+    },
+
+    drawSubHistogram(type, index, bins, y, histogramConfig, svg) {
+      const that = this;
+      const all_ticks = histogramConfig.xTicks[type];
+      const x = histogramConfig.xFuncs[type];
+      const brush = histogramConfig.brushes.get(type).func;
+
+      // 创建当前种类子图的g
+      const g = svg
+        .append("g")
+        .attr("class", `${type}-box sub-graph`)
+        .attr("transform", `translate(0,${index * histogramConfig.subHeight})`);
+
+      const subTitle = g.append("g").attr("class", "sub-title");
+      subTitle
+        .append("text")
+        .attr("class", "type-text")
+        .text(type)
+        .attr("x", histogramConfig.marginLeft)
+        .attr("y", 0 + 1.2 * that.rootFontSize)
+        .attr("text-anchor", "start")
+        .attr("fill", "#555")
+        .attr("font-size", "1.2rem");
+      subTitle
+        .append("use")
+        .datum({
+          selected: true,
+          type: type,
+        })
+        .attr("href", "#defs-check-insight")
+        .attr(
+          "transform",
+          `translate(${
+            histogramConfig.width - histogramConfig.marginRight - 15
+          },0)`
+        )
+        .attr("width", "1.5rem")
+        .attr("height", "1.5rem")
+        .attr("cursor", "pointer")
+        .classed("histogram-type-selected", true)
+        .on("mouseover", function () {
+          d3.select(this).classed("histogram-type-hovered", true);
+        })
+        .on("mouseout", function (event, d) {
+          if (!d.selected)
+            d3.select(this)
+              .classed("histogram-type-unselected", true)
+              .classed("histogram-type-hovered", false);
+          else {
+            d3.select(this)
+              .classed("histogram-type-unselected", false)
+              .classed("histogram-type-hovered", false);
+          }
+        })
+        .on("click", function (event, d) {
+          d.selected = !d.selected;
+          if (!d.selected)
+            d3.select(this).classed("histogram-type-unselected", true);
+          else {
+            d3.select(this).classed("histogram-type-unselected", false);
+          }
+          that.changeTypeSelected({
+            type: d.type,
+            selected: d.selected,
+          });
+        });
+      // slider矩形框
+      const sliderRect = g
+        .append("rect")
+        .attr("class", "slider-rect")
+        .attr("x", histogramConfig.marginLeft)
+        .attr("y", histogramConfig.subHeight - histogramConfig.sliderHeight)
+        .attr("width", histogramConfig.sliderWidth)
+        .attr("height", histogramConfig.sliderRectHeight)
+        .attr("fill", "#D5DAEC")
+        .attr("stroke", "#fff");
+      // 添加slider的背景线
+      all_ticks.forEach((d, index) => {
+        if (index !== 0)
+          g.append("line")
+            .attr("class", "brush-line")
+            .attr("x1", x(d))
+            .attr("x2", x(d))
+            .attr(
+              "y1",
+              histogramConfig.subHeight - histogramConfig.sliderHeight
+            )
+            .attr(
+              "y2",
+              histogramConfig.subHeight -
+                histogramConfig.sliderHeight +
+                histogramConfig.sliderRectHeight
+            )
+            .attr("stroke", "#fff");
+      });
+
+      // 添加brush
+      g.append("g").attr("class", "brush").call(brush);
+
+      // 直方图矩形框
+      g.append("g")
+        .attr("fill", "#858eb5")
+        .attr("class", "rect-group")
+        .style("cursor", "pointer")
+        .selectAll("rect")
+        .data(bins, (d, index) => index)
+        .join("rect")
+        .on("mouseover", mouseover)
+        .on("mousemove", mousemove)
+        .on("mouseleave", mouseleave)
+        .attr("x", (d) => {
+          if (d.x0 === d.x1) {
+            return histogramConfig.marginLeft;
+          } else {
+            return x(d.x0) + 1;
+          }
+        })
+        .attr("width", (d) => {
+          const rectWidth = x(d.x1) - x(d.x0);
+          if (rectWidth === 0) {
+            return (
+              histogramConfig.width -
+              histogramConfig.marginLeft -
+              histogramConfig.marginRight
+            );
+          } else {
+            return rectWidth - 1;
+          }
+        })
+        .attr("y", (d) => y(d.length))
+        .attr("height", (d) => y(0) - y(d.length));
+
+      // 找到最大长度的 bin
+      let maxBin = bins.reduce((acc, curr) =>
+        curr.length > acc.length ? curr : acc
+      );
+
+      // 在最高矩形上添加文本
+      g.append("g")
+        .attr("class", "max-value")
+        .selectChildren("text")
+        .data([maxBin])
+        .join("text")
+        .attr("x", (d) => x(d.x0) + (x(d.x1) - x(d.x0)) / 2)
+        .attr("y", (d) => y(d.length) + that.rootFontSize)
+        .attr("text-anchor", "middle")
+        .attr("fill", "#fff")
+        .attr("font-size", "1rem")
+        .text((d) => d.length);
+      // x轴
+      g.append("g")
+        .attr("class", "x-axis")
+        .attr(
+          "transform",
+          `translate(0,${
+            histogramConfig.subHeight - histogramConfig.marginBottom
+          })`
+        )
+        .call(d3.axisBottom(x).tickValues(all_ticks).tickSizeInner(3))
+        .call((g) => g.attr("font-size", "0.8rem"));
+      function mouseover(event, d) {
+        histogramConfig.tooltip.transition().duration(250).style("opacity", 1);
+        d3.select(this).classed("barchart-hover-highlight", true);
+      }
+      function mousemove(event, d) {
+        histogramConfig.tooltip
+          .html(`${d.length}`)
+          .style("left", event.x + 15 + "px")
+          .style("top", event.y + "px");
+      }
+      function mouseleave(event, d) {
+        histogramConfig.tooltip.transition().duration(250).style("opacity", 0);
         d3.select(this).classed("barchart-hover-highlight", false);
       }
     },

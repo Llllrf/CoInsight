@@ -994,6 +994,9 @@ export default {
       }
       // table 更新信息
       const stateList = Array.from(checkedAllStateData.keys());
+      if (!stateList.includes(this.focusState)) {
+        stateList.push(this.focusState);
+      }
       this.$store.dispatch("tree/loadTableInfo", {
         stateList: stateList,
       });
@@ -1388,6 +1391,7 @@ export default {
 
               that.$store.dispatch("force/loadData", {
                 state: state,
+                mode: "forward",
               });
             });
           break;
@@ -1762,6 +1766,7 @@ export default {
 
             that.$store.dispatch("force/loadData", {
               state: state,
+              mode: "forward",
             });
           });
       } else {
@@ -1797,6 +1802,7 @@ export default {
 
             that.$store.dispatch("force/loadData", {
               state: state,
+              mode: "back",
             });
           });
       }
@@ -4516,7 +4522,8 @@ export default {
 }
 
 .active-btn {
-  box-shadow: inset 0.2rem 0.2rem 1.6rem #4444442a, inset -0.2rem -0.2rem 1.6rem #4444442a;
+  box-shadow: inset 0.2rem 0.2rem 1.6rem #4444442a,
+    inset -0.2rem -0.2rem 1.6rem #4444442a;
 }
 
 .btn {
@@ -4575,7 +4582,6 @@ export default {
     }
     .focus-svg {
       .background-shape {
-
         filter: url(#rect-shadow-focus);
       }
     }
