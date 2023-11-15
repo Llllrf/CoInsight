@@ -4,8 +4,8 @@ export default {
   namespaced: true,
   state() {
     return {
-      baseUrl: "http://10.1.114.103:5001",
-      // baseUrl: "http://localhost:3004",
+      // baseUrl: "http://127.0.0.1:5000",
+      baseUrl: "http://10.1.114.103:5001", // run backend in an intranet server
 
       // load state
       loading: false,
