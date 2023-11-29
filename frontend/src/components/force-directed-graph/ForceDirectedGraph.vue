@@ -1,5 +1,32 @@
 <template>
   <div class="container">
+    <div class="legend-box" v-if="currentLegendData">
+      <el-pagination
+        small
+        :page-size="1"
+        layout="prev,slot,next"
+        :total="2"
+        v-model:current-page="currentLegendPage"
+        class="legend-pagination"
+      >
+        <template #default>
+          <div class="title-box">{{ currentLegendData.title }}</div>
+        </template>
+      </el-pagination>
+      <div class="content-box">
+        <div class="legend-item" v-for="item in currentLegendData.items">
+          <div
+            v-if="currentLegendData.title === 'Node Type'"
+            class="color"
+            :style="{ 'background-color': item.color }"
+          ></div>
+          <div v-else>
+            <SvgIcon :iconName="item.name" class="icon"></SvgIcon>
+          </div>
+          <div class="name">{{ item.name }}</div>
+        </div>
+      </div>
+    </div>
     <transition name="slide">
       <div class="more-box" v-show="showMoreIcon">
         <svg
@@ -363,6 +390,44 @@ export default {
 
   data() {
     return {
+      // legend info:
+      currentLegendPage: 1,
+      currentLegendData: null,
+      legendInfo: [
+        {
+          title: "Node Type",
+          items: [
+            {
+              name: "point",
+              color: "#C69DE9",
+            },
+            {
+              name: "shape",
+              color: "#F7A69F",
+            },
+
+            {
+              name: "compound",
+              color: "#53C4B6",
+            },
+          ],
+        },
+        {
+          title: "Link Type",
+          items: [
+            {
+              name: "parent-child",
+            },
+            {
+              name: "siblings",
+            },
+            {
+              name: "same-name",
+            },
+          ],
+        },
+      ],
+
       // data reload
       refreshFlag: true,
       // tree info
@@ -542,6 +607,9 @@ export default {
   },
 
   watch: {
+    currentLegendPage(newVal) {
+      this.currentLegendData = this.getLegendPageDataByNumber(newVal);
+    },
     crossStatesHoveredNeighbor(newVal, oldVal) {
       if (newVal) {
         Array.from(newVal.keys()).forEach((state) => {
@@ -919,7 +987,18 @@ export default {
     // default config
     /* -------------------------------------------------------------------------- */
   },
+  mounted() {
+    this.currentLegendData = this.getLegendPageDataByNumber(1);
+    console.log(this.currentLegendData);
+  },
+
   methods: {
+    getLegendPageDataByNumber(pageNum) {
+      const index = pageNum - 1;
+
+      // if (end > this.insightList.length) end = this.insightList.length;
+      return this.legendInfo[index];
+    },
     handleExploredPath(state, nodeId, mode) {
       const exploredPaths = this.exploredPaths;
       if (!exploredPaths.has(state)) {
@@ -994,6 +1073,9 @@ export default {
       }
       // table 更新信息
       const stateList = Array.from(checkedAllStateData.keys());
+      if (!stateList.includes(this.focusState)) {
+        stateList.push(this.focusState);
+      }
       this.$store.dispatch("tree/loadTableInfo", {
         stateList: stateList,
       });
@@ -1388,6 +1470,7 @@ export default {
 
               that.$store.dispatch("force/loadData", {
                 state: state,
+                mode: "forward",
               });
             });
           break;
@@ -1762,6 +1845,7 @@ export default {
 
             that.$store.dispatch("force/loadData", {
               state: state,
+              mode: "forward",
             });
           });
       } else {
@@ -1797,6 +1881,7 @@ export default {
 
             that.$store.dispatch("force/loadData", {
               state: state,
+              mode: "back",
             });
           });
       }
@@ -3210,7 +3295,13 @@ export default {
             .text(function () {
               const rowName = gData.row;
 
-              return `row: ${rowName}`;
+              if (rowName === "_") {
+                return `row: ${rowName}`;
+              }
+
+              const parts = rowName.split("_");
+
+              return `row: ${parts[parts.length - 1]}`;
             })
             .attr("font-size", "10px")
             .attr("x", -translateX + that.iconOffset)
@@ -3221,7 +3312,13 @@ export default {
             .style("text-align", "left")
             .text(function () {
               const colName = gData.col;
-              return `col: ${colName}`;
+              if (colName === "_") {
+                return `col: ${colName}`;
+              }
+
+              const parts = colName.split("_");
+
+              return `col: ${parts[parts.length - 1]}`;
             });
           removeIcon.attr(
             "transform",
@@ -4441,12 +4538,66 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .container {
   height: 100%;
   width: 100%;
   position: relative;
   overflow: hidden;
+
+  .legend-box {
+    background-color: #fff;
+    user-select: none;
+    position: absolute;
+    bottom: 0.8rem;
+    right: 0.4rem;
+    border: 0.1rem solid rgba(0, 0, 0, 0.2);
+
+    width: 13rem;
+    height: 10rem;
+    gap: 0.6rem;
+    padding: 0.4rem 1rem; // top: 11;
+
+    @include flex-box(column);
+    transition: box-shadow 0.15s ease-out;
+
+    &:hover {
+      box-shadow: 0.1rem 0.1rem 0.15rem #4444442a,
+        -0.1rem -0.1rem 0.15rem #4444442a;
+    }
+    .title-box {
+      font-size: 1.2rem;
+      text-align: center;
+      font-weight: bold;
+      color: $primary-color-dark;
+    }
+    .content-box {
+      flex: auto;
+      @include flex-box(column);
+      // justify-content:;
+      gap: 0.6rem;
+      .legend-item {
+        @include flex-box(row);
+        gap: 0.6rem;
+        // flex: auto;
+        height: 1.5rem;
+        align-items: center;
+        .color {
+          flex: 0 1 30%;
+          // width: auto;
+          height: 100%;
+        }
+        .icon {
+          @include icon-style($icon-size-small, $primary-color);
+        }
+        .name {
+          color: $primary-color-dark;
+          flex: auto;
+          font-size: 1.2rem;
+        }
+      }
+    }
+  }
 }
 
 #force-svg-container {
@@ -4516,7 +4667,8 @@ export default {
 }
 
 .active-btn {
-  box-shadow: inset 0.2rem 0.2rem 1.6rem #4444442a, inset -0.2rem -0.2rem 1.6rem #4444442a;
+  box-shadow: inset 0.2rem 0.2rem 1.6rem #4444442a,
+    inset -0.2rem -0.2rem 1.6rem #4444442a;
 }
 
 .btn {
@@ -4555,7 +4707,11 @@ export default {
 </style>
 
 <!-- global style -->
-<style lang="less">
+<style lang="scss">
+.el-pagination.legend-pagination {
+  --el-color-primary: #{$primary-color-dark};
+}
+
 .shrink-icon,
 .focus-icon {
   fill: #8d93a7;
@@ -4575,7 +4731,6 @@ export default {
     }
     .focus-svg {
       .background-shape {
-
         filter: url(#rect-shadow-focus);
       }
     }

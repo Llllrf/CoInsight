@@ -13,10 +13,10 @@ export default defineConfig({
       ? "/customed-force-directed-graph/"
       : "/",
 
-  // server: {
-  //   host: true,
-  //   port: 8001, // This is the port which we will use in docker
-  // },
+  server: {
+    host: true,
+    port: 8001, // This is the port which we will use in docker
+  },
   plugins: [
     vue(),
     AutoImport({
@@ -31,6 +31,15 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
       data: path.resolve(__dirname, "./pulic/data"),
       // 其他别名配置
+    },
+  },
+  // sass variable import
+  css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: `@use "@/assets/styles/abstracts/_vars" as *;
+        @use '@/assets/styles/abstracts/_mixins' as *;`,
+      },
     },
   },
 });
