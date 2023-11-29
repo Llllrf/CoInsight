@@ -169,18 +169,19 @@ def calc_compound_insight(d):
     if check_zero(d.iloc[:,0]) > 0.5 or check_zero(d.iloc[:,1]) > 0.5:
         return ins_type, ins_score # too many zero
     corr, p_value = correlation_detection(d.iloc[:,0], d.iloc[:,1])
-    score = corr ** 2 * (1 - p_value)
-    # if check_is_temporal(d):
-    #     if abs(corr) > 0.7 and p_value < 0.05:
-    #         ins_score = abs(corr)
-    #         ins_type = 'correlation-temporal' 
-    # else:   # different threshold for non-temporal data
-    #     if abs(corr) > 0.75 and p_value < 0.05:
-    #         ins_score = abs(corr)
-    #         ins_type = 'correlation'
-    if score > 0.7:
-        ins_type = 'correlation-temporal' if check_is_temporal(d) else 'correlation'
-        ins_score = score
+    if corr > 0:
+        score = corr ** 2 * (1 - p_value)
+        # if check_is_temporal(d):
+        #     if abs(corr) > 0.7 and p_value < 0.05:
+        #         ins_score = abs(corr)
+        #         ins_type = 'correlation-temporal' 
+        # else:   # different threshold for non-temporal data
+        #     if abs(corr) > 0.75 and p_value < 0.05:
+        #         ins_score = abs(corr)
+        #         ins_type = 'correlation'
+        if score > 0.7:
+            ins_type = 'correlation-temporal' if check_is_temporal(d) else 'correlation'
+            ins_score = score
 
     return ins_type, ins_score
 
