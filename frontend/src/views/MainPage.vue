@@ -321,6 +321,9 @@ export default {
       }
     }
   }
+
+  .force-graph-box {
+  }
 }
 
 .loading-mask {

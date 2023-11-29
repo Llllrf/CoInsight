@@ -51,6 +51,33 @@
         d="M512 768c-119.466667 0-213.333333-93.866667-213.333333-213.333333s93.866667-213.333333 213.333333-213.333333 213.333333 93.866667 213.333333 213.333333S631.466667 768 512 768zM512 426.666667c-72.533333 0-128 55.466667-128 128s55.466667 128 128 128 128-55.466667 128-128S584.533333 426.666667 512 426.666667z"
       ></path>
     </symbol>
+
+    <symbol
+      id="parent-child"
+      viewBox="0 0 102 102"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M101 50.3407L6 72V29L101 50.3407Z" />
+    </symbol>
+    <symbol
+      id="siblings"
+      viewBox="0 0 102 102"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <rect x="3" y="38" width="95" height="25" />
+    </symbol>
+    <symbol
+      id="same-name"
+      viewBox="0 0 102 102"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <rect x="3" y="38" width="10" height="25" />
+      <rect x="20" y="38" width="10" height="25" />
+      <rect x="37" y="38" width="10" height="25" />
+      <rect x="54" y="38" width="10" height="25" />
+      <rect x="71" y="38" width="10" height="25" />
+      <rect x="88" y="38" width="10" height="25" />
+    </symbol>
   </svg>
 </template>
 

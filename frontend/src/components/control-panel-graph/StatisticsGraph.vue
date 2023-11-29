@@ -1194,7 +1194,7 @@ export default {
   background-color: #fff;
 }
 .barchart-container {
-  height: 25vh;
+  height: 26vh;
   width: 100%;
   background-color: #fff;
   transition: border-color 0.3s, box-shadow 0.3s;
