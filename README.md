@@ -1,4 +1,5 @@
 # CoInsight
+![avatar](system-v4.png)
 
 To build and run this project on your own, you need to run the back-end and the front-end simultaneously.
 
